@@ -3,8 +3,21 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
 import pandas
 import collections
+import argparse
 
-excel_data = (pandas.read_excel("wine3.xlsx", na_values=['N/A', 'NA'], keep_default_na=False)).to_dict(orient="record")
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+	  description='Скрипт предназначен для запуска сайта на localhost')
+    parser.add_argument('data_file', help='База данных для карточек вин', nargs="?", const=1, default="wine.xlsx")
+    return parser
+
+
+args = get_parser().parse_args()
+data_file = args.data_file
+
+
+excel_data = (pandas.read_excel("{}".format(data_file), na_values=['N/A', 'NA'], keep_default_na=False)).to_dict(orient="record")
 cards_of_wines = collections.defaultdict(list)
 for card in excel_data:
     cards_of_wines[card["Категория"]].append(card)
@@ -16,8 +29,12 @@ env = Environment(
 
 template = env.get_template('template.html')
 
+age_of_company_in_days = (datetime.datetime.now() - datetime.datetime(year=1920, month=1, day=1)).days
+days_in_year = 365
+age_of_company_in_years = int(age_of_company_in_days / days_in_year)
+
 rendered_page = template.render(
-    age_of_company=int((datetime.datetime.now() - datetime.datetime(year=1920, month=1, day=1)).days / 365),
+    age_of_company=age_of_company_in_years,
     cards_of_wines=cards_of_wines,
 )
 
