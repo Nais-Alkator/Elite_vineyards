@@ -16,7 +16,7 @@ def get_parser():
 args = get_parser().parse_args()
 data_file = args.data_file
 
-wine_data = (pandas.read_excel(data_file, na_values=['N/A', 'NA'], keep_default_na=False))
+wine_data = pandas.read_excel(data_file, na_values=['N/A', 'NA'], keep_default_na=False)
 wine_data = wine_data.to_dict(orient="record")
 cards_of_wines = collections.defaultdict(list)
 
